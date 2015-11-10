@@ -1,6 +1,8 @@
 # Blender Hy REPL
 Networked REPL into [Blender](https://www.blender.org/) using [Hy](https://github.com/hylang)
 
+Inspired by [chr15m](https://github.com/chr15m)'s [work](https://github.com/chr15m/blender-hylang-live-code)
+
 ## Installation
 On OSX
 
