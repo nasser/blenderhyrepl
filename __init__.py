@@ -1,4 +1,5 @@
 import bpy, sys, os
+from io import StringIO
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 import hy
@@ -9,17 +10,21 @@ import threading
 import socket
 
 HOST = "localhost"
-PORT = 1952
+PORT = 1951
+
+replGlobals = {'__name__': '__repl__', '__doc__': ''}
 
 def handle_incoming_code(sock):
     while 1:
         #wait to accept a connection - blocking call
         conn, addr = sock.accept()
-        print('Connected with ' + addr[0] + ':' + str(addr[1]))
         code = conn.recv(4096).decode('utf-8')
-        print('Got: ' + code)
-        # print('Tokenized: ' + hy.lex.tokenize(code))
-        hy.importer.hy_eval(hy.lex.tokenize(code), {}, "<hy repl>")
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        result = hy.importer.hy_eval(hy.lex.tokenize(code)[0], replGlobals, "<repl>")
+        conn.send((sys.stdout.getvalue() + "\n" + repr(result)).encode("utf-8"))
+        conn.close()
+        sys.stdout = old_stdout
 
 class ToolsPanel(bpy.types.Panel):
     bl_label = "Hy Language"
