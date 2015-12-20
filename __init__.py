@@ -21,7 +21,11 @@ def handle_incoming_code(sock):
         code = conn.recv(4096).decode('utf-8')
         old_stdout = sys.stdout
         sys.stdout = StringIO()
-        result = hy.importer.hy_eval(hy.lex.tokenize(code)[0], replGlobals, "<repl>")
+
+        try:
+            result = hy.importer.hy_eval(hy.lex.tokenize(code)[0], replGlobals, "<repl>")
+        except Exception as expt:
+            result = str(expt)
         conn.send((sys.stdout.getvalue() + "\n" + repr(result)).encode("utf-8"))
         conn.close()
         sys.stdout = old_stdout
